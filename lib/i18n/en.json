@@ -1,0 +1,89 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "about": "About",
+    "timeline": "Timeline",
+    "register": "Register",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "NUTPAM 2025",
+    "subtitle": "Hackathon & Workshop",
+    "date": "February–May, 2025",
+    "mainEvent": "September 22, 2025",
+    "description": "Join us for an innovative one-day workshop and hackathon featuring NoCodeML and cutting-edge problem-solving challenges.",
+    "cta": "Register Now"
+  },
+  "about": {
+    "title": "About NUTPAM 2025",
+    "description": "NUTPAM 2025 is a premier hackathon and workshop event designed to bring together innovative minds to solve real-world problems using cutting-edge technology and NoCodeML solutions.",
+    "features": ["NoCodeML Workshop", "Real-world Problem Statements", "Expert Mentorship", "Networking Opportunities"]
+  },
+  "timeline": {
+    "title": "Event Timeline",
+    "subtitle": "September 22, 2025",
+    "events": [
+      {
+        "time": "09:00",
+        "title": "NoCodeML Workshop",
+        "description": "Learn the fundamentals of NoCodeML and its applications"
+      },
+      {
+        "time": "11:00",
+        "title": "Problem Statements Disclosure",
+        "description": "Discover the challenges you'll be solving"
+      },
+      {
+        "time": "12:00",
+        "title": "Hackathon Begins",
+        "description": "Start building your innovative solutions"
+      },
+      {
+        "time": "14:00",
+        "title": "Level 1 Review",
+        "description": "Present your progress to mentors"
+      },
+      {
+        "time": "16:00",
+        "title": "Final Review",
+        "description": "Showcase your completed solutions"
+      },
+      {
+        "time": "17:30",
+        "title": "Winners Announcement",
+        "description": "Celebrate the most innovative solutions"
+      }
+    ]
+  },
+  "registration": {
+    "title": "Register Your Team",
+    "teamName": "Team Name",
+    "teamLeader": "Team Leader",
+    "teamLeaderEmail": "Team Leader Email",
+    "problemStatement": "Problem Statement",
+    "teamMembers": "Team Members",
+    "addMember": "Add Member",
+    "removeMember": "Remove Member",
+    "submit": "Register Team",
+    "success": "Registration Successful!",
+    "successMessage": "Confirmation sent to your email",
+    "validation": {
+      "required": "This field is required",
+      "email": "Please enter a valid email",
+      "minMembers": "Minimum 2 team members required",
+      "maxMembers": "Maximum 3 team members allowed"
+    },
+    "problemStatements": [
+      "NoCodeML Challenge",
+      "Healthcare Innovation",
+      "Education Technology",
+      "Climate Solutions",
+      "Open Innovation"
+    ]
+  },
+  "footer": {
+    "copyright": "© 2025 NUTPAM. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  }
+}

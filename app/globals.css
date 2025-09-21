@@ -1,0 +1,222 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated theme for NUTPAM 2025 light theme with pastel blue/purple accents */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #8b5cf6;
+  --secondary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #3b82f6;
+  --chart-1: #3b82f6;
+  --chart-2: #8b5cf6;
+  --chart-3: #06b6d4;
+  --chart-4: #f59e0b;
+  --chart-5: #10b981;
+  --radius: 0.75rem;
+  --sidebar: #0a0b14;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #7dd3fc;
+  --sidebar-primary-foreground: #05060a;
+  --sidebar-accent: #1a1b26;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: #7dd3fc;
+}
+
+.dark {
+  /* Updated theme for NUTPAM 2025 dark theme with pastel blue/purple accents */
+  --background: #05060a;
+  --foreground: #ffffff;
+  --card: #0a0b14;
+  --card-foreground: #ffffff;
+  --popover: #0a0b14;
+  --popover-foreground: #ffffff;
+  --primary: #7dd3fc;
+  --primary-foreground: #05060a;
+  --secondary: #b28cff;
+  --secondary-foreground: #05060a;
+  --muted: #1a1b26;
+  --muted-foreground: #9ca3af;
+  --accent: #7dd3fc;
+  --accent-foreground: #05060a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: #7dd3fc;
+  --chart-1: #7dd3fc;
+  --chart-2: #b28cff;
+  --chart-3: #06b6d4;
+  --chart-4: #8b5cf6;
+  --chart-5: #3b82f6;
+  --sidebar: #0a0b14;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #7dd3fc;
+  --sidebar-primary-foreground: #05060a;
+  --sidebar-accent: #1a1b26;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: #7dd3fc;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+  --font-orbitron: var(--font-orbitron);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+
+  /* Added custom styles for 3D effects and animations */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(125, 211, 252, 0.3);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(178, 140, 255, 0.3);
+  }
+
+  .text-glow-blue {
+    text-shadow: 0 0 20px rgba(125, 211, 252, 0.5);
+  }
+
+  .text-glow-purple {
+    text-shadow: 0 0 20px rgba(178, 140, 255, 0.5);
+  }
+}
+
+/* Added hyperspeed background animation */
+@keyframes hyperspeed {
+  0% {
+    transform: translateZ(0);
+  }
+  100% {
+    transform: translateZ(1000px);
+  }
+}
+
+.hyperspeed-line {
+  animation: hyperspeed 2s linear infinite;
+}
+
+/* Added floating animation for 3D blocks */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+  }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Added grid pattern background */
+.grid-pattern {
+  background-image: linear-gradient(rgba(125, 211, 252, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Added smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Added reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hyperspeed-line {
+    animation: none;
+  }
+
+  .float-animation {
+    animation: none;
+  }
+}
