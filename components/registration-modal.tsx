@@ -6,7 +6,7 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { X, Plus, Sparkles } from "lucide-react"
+import { X, Sparkles } from "lucide-react"
 
 interface RegistrationModalProps {
   isOpen: boolean
@@ -46,8 +46,7 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
     teamSize: 2, // added team size field
     problemTrack: "", // updated field name
     members: [
-      { name: "", email: "" }, // updated structure to include phone field
-      { name: "", email: "" }, // updated structure to include phone field
+      { name: "", email: "" }, // Start with only 1 member slot for minimum team size of 2
     ],
   })
   const [errors, setErrors] = useState<FormErrors>({})
@@ -77,8 +76,7 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
         teamSize: 2, // added team size field
         problemTrack: "", // updated field name
         members: [
-          { name: "", email: "" }, // updated structure to include phone field
-          { name: "", email: "" }, // updated structure to include phone field
+          { name: "", email: "" }, // Reset to 1 member for minimum team size
         ],
       })
       setErrors({})
@@ -112,10 +110,10 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
         break
       case 2:
         const validMembers = formData.members.filter((member) => member.name.trim())
-        if (validMembers.length < 1) {
-          newErrors.members = "At least 1 additional member required"
-        } else if (validMembers.length > 2) {
-          newErrors.members = "Maximum 2 additional members allowed"
+        if (validMembers.length < formData.teamSize - 1) {
+          newErrors.members = `At least ${formData.teamSize - 1} additional member required`
+        } else if (validMembers.length > formData.teamSize - 1) {
+          newErrors.members = `Maximum ${formData.teamSize - 1} additional members allowed`
         }
         for (let i = 0; i < validMembers.length; i++) {
           const member = validMembers[i]
@@ -147,28 +145,6 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0))
-  }
-
-  const addTeamMember = () => {
-    if (formData.members.length < 2) {
-      // Updated limit check
-      setFormData((prev) => ({
-        ...prev,
-        members: [...prev.members, { name: "", email: "" }],
-        teamSize: prev.teamSize + 1,
-      }))
-    }
-  }
-
-  const removeTeamMember = (index: number) => {
-    if (formData.members.length > 1) {
-      // Updated minimum check
-      setFormData((prev) => ({
-        ...prev,
-        members: prev.members.filter((_, i) => i !== index),
-        teamSize: prev.teamSize - 1, // update team size
-      }))
-    }
   }
 
   const updateTeamMember = (index: number, field: "name" | "email", value: string) => {
@@ -350,35 +326,78 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
               {/* Step 0: Team Info */}
               {currentStep === 0 && (
                 <div className="space-y-6">
-                  <div>
-                    <Label htmlFor="teamName" className="text-foreground">
-                      {t("registration.teamName")}
-                    </Label>
-                    <Input
-                      id="teamName"
-                      value={formData.teamName}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, teamName: e.target.value }))}
-                      className="mt-2"
-                      placeholder="Enter your team name"
-                    />
-                    {errors.teamName && <p className="text-destructive text-sm mt-1">{errors.teamName}</p>}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="teamName" className="text-foreground">
+                        {t("registration.teamName")} <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="teamName"
+                        value={formData.teamName}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, teamName: e.target.value }))}
+                        className="mt-2"
+                        placeholder="Enter team name"
+                      />
+                      {errors.teamName && <p className="text-destructive text-sm mt-1">{errors.teamName}</p>}
+                    </div>
+
+                    <div>
+                      <Label className="text-foreground">
+                        Team Size <span className="text-destructive">*</span>
+                      </Label>
+                      <Select
+                        value={formData.teamSize.toString()}
+                        onValueChange={(value) => {
+                          const newSize = Number.parseInt(value)
+                          setFormData((prev) => {
+                            const currentMemberCount = prev.members.length
+                            const requiredMemberCount = newSize - 1 // -1 for team leader
+
+                            let newMembers = [...prev.members]
+
+                            // Adjust members array based on team size
+                            if (requiredMemberCount > currentMemberCount) {
+                              // Add empty members
+                              for (let i = currentMemberCount; i < requiredMemberCount; i++) {
+                                newMembers.push({ name: "", email: "" })
+                              }
+                            } else if (requiredMemberCount < currentMemberCount) {
+                              // Remove excess members
+                              newMembers = newMembers.slice(0, requiredMemberCount)
+                            }
+
+                            return {
+                              ...prev,
+                              teamSize: newSize,
+                              members: newMembers,
+                            }
+                          })
+                        }}
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select team size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.teamSize && <p className="text-destructive text-sm mt-1">{errors.teamSize}</p>}
+                    </div>
                   </div>
 
                   <div>
                     <Label htmlFor="teamLeaderName" className="text-foreground">
-                      {" "}
-                      {/* updated field name */}
-                      {t("registration.teamLeader")}
+                      {t("registration.teamLeader")} <span className="text-destructive">*</span>
                     </Label>
                     <Input
-                      id="teamLeaderName" // updated field name
-                      value={formData.teamLeaderName} // updated field name
-                      onChange={(e) => setFormData((prev) => ({ ...prev, teamLeaderName: e.target.value }))} // updated field name
+                      id="teamLeaderName"
+                      value={formData.teamLeaderName}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, teamLeaderName: e.target.value }))}
                       className="mt-2"
                       placeholder="Enter team leader name"
                     />
-                    {errors.teamLeaderName && <p className="text-destructive text-sm mt-1">{errors.teamLeaderName}</p>}{" "}
-                    {/* updated field name */}
+                    {errors.teamLeaderName && <p className="text-destructive text-sm mt-1">{errors.teamLeaderName}</p>}
                   </div>
 
                   <div>
@@ -458,7 +477,8 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">{t("registration.teamMembers")}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Add 1-2 additional team members (total team size: 2-3)
+                      Add {formData.teamSize - 1} team member{formData.teamSize > 2 ? "s" : ""} (Team size:{" "}
+                      {formData.teamSize})
                     </p>
                   </div>
 
@@ -467,17 +487,6 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
                       <div key={index} className="space-y-4 p-4 border border-border rounded-lg">
                         <div className="flex items-center justify-between">
                           <h4 className="font-medium text-foreground">Member {index + 2}</h4>
-                          {formData.members.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeTeamMember(index)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              Remove
-                            </Button>
-                          )}
                         </div>
 
                         <div className="space-y-3">
@@ -510,18 +519,6 @@ export function RegistrationModal({ isOpen, onClose }: RegistrationModalProps) {
                         </div>
                       </div>
                     ))}
-
-                    {formData.members.length < 2 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={addTeamMember}
-                        className="w-full border-dashed border-primary text-primary hover:bg-primary/10 bg-transparent"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t("registration.addMember")}
-                      </Button>
-                    )}
 
                     {errors.members && <p className="text-destructive text-sm">{errors.members}</p>}
                   </div>
