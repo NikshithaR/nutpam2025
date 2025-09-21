@@ -107,85 +107,102 @@ export async function POST(request: Request) {
     // Generate unique team ID
     const teamId = `nutpam-2025-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`
 
-    const memberNames = members
-      .filter((m) => m.name?.trim())
-      .map((m) => m.name.trim())
-      .join(", ")
+    // Prepare data for Google Sheets
+    const timestamp = new Date().toISOString()
+    const memberNames = members.map((m) => m.name).join(", ")
+    const memberEmails = members.map((m) => m.email).join(", ")
 
-    const googleSheetsData = {
-      timestamp: new Date().toISOString(),
+    const sheetsData = {
+      timestamp,
+      teamId,
       teamName,
       teamLeaderName,
       teamLeaderEmail,
       teamLeaderPhone,
-      teamSize: teamSizeNum,
-      memberNames, // Combined member names as comma-separated string
+      teamSize,
       problemTrack,
+      memberNames,
+      memberEmails,
+      member1Name: members[0]?.name || "",
+      member1Email: members[0]?.email || "",
+      member2Name: members[1]?.name || "",
+      member2Email: members[1]?.email || "",
     }
 
-    console.log("[API] Sending data to Google Sheets:", googleSheetsData)
+    console.log("[API] Sending data to Google Sheets:", JSON.stringify(sheetsData, null, 2))
+    console.log("[API] Individual fields being sent:")
+    Object.entries(sheetsData).forEach(([key, value]) => {
+      console.log(`[API] ${key}: ${value}`)
+    })
+
+    // Send to Google Sheets
+    const googleSheetsUrl =
+      "https://script.google.com/macros/s/AKfycby-k9LXC02PK_UBL9FH7Q-GfNWZKLkLXEQEItGx9Vk0KDaKOHSiAlEuuwRbBshnH8hw/exec"
 
     try {
-      const googleSheetsResponse = await fetch(
-        "https://script.google.com/macros/s/AKfycbxAjBM11R4bgEHq0VQvAqsEO7XzDZ0xc2TnjGrjbtwUMdipazKX5lDGKmgQjJ7sBUx1/exec",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(googleSheetsData),
-          redirect: "follow", // Follow redirects automatically
+      const sheetsResponse = await fetch(googleSheetsUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+        body: JSON.stringify(sheetsData),
+        redirect: "manual", // Don't follow redirects automatically
+      })
 
-      console.log("[API] Google Sheets response status:", googleSheetsResponse.status)
-      console.log("[API] Google Sheets response headers:", Object.fromEntries(googleSheetsResponse.headers.entries()))
+      console.log("[API] Google Sheets response status:", sheetsResponse.status)
+      console.log("[API] Google Sheets response headers:", Object.fromEntries(sheetsResponse.headers.entries()))
 
-      const googleSheetsResult = await googleSheetsResponse.text()
-      console.log("[API] Google Sheets response body:", googleSheetsResult)
+      if (sheetsResponse.status === 302) {
+        // Handle redirect manually
+        const responseText = await sheetsResponse.text()
+        console.log("[API] Got 302 redirect, extracting URL from HTML:", responseText)
 
-      if (googleSheetsResponse.status === 302 || googleSheetsResult.includes("Moved Temporarily")) {
-        console.log("[API] Handling 302 redirect from Google Apps Script")
+        // Extract the redirect URL from the HTML response
+        const hrefMatch = responseText.match(/HREF="([^"]+)"/i)
+        if (hrefMatch && hrefMatch[1]) {
+          let redirectUrl = hrefMatch[1]
+          // Decode HTML entities
+          redirectUrl = redirectUrl.replace(/&amp;/g, "&")
 
-        // Extract redirect URL from HTML response
-        const redirectMatch = googleSheetsResult.match(/HREF="([^"]+)"/)
-        if (redirectMatch && redirectMatch[1]) {
-          const redirectUrl = redirectMatch[1].replace(/&amp;/g, "&") // Decode HTML entities
           console.log("[API] Following redirect to:", redirectUrl)
 
-          const params = new URLSearchParams()
-          Object.entries(googleSheetsData).forEach(([key, value]) => {
-            params.append(key, String(value))
+          // Make a GET request to the redirect URL with data as query parameters
+          const urlParams = new URLSearchParams()
+          Object.entries(sheetsData).forEach(([key, value]) => {
+            urlParams.append(key, String(value))
           })
 
-          try {
-            const redirectResponse = await fetch(`${redirectUrl}&${params.toString()}`, {
-              method: "GET",
-            })
+          const finalUrl = `${redirectUrl}&${urlParams.toString()}`
+          console.log("[API] Final URL with parameters:", finalUrl)
 
-            const redirectResult = await redirectResponse.text()
-            console.log("[API] Redirect response:", redirectResponse.status, redirectResult)
+          const finalResponse = await fetch(finalUrl, {
+            method: "GET",
+          })
 
-            if (!redirectResponse.ok) {
-              throw new Error(`Redirect failed: ${redirectResponse.status}`)
-            }
-          } catch (redirectError) {
-            console.error("[API] Redirect request failed:", redirectError)
-            throw new Error("All Google Sheets connection attempts failed")
+          console.log("[API] Final response status:", finalResponse.status)
+          const finalResponseText = await finalResponse.text()
+          console.log("[API] Final response text:", finalResponseText)
+
+          if (finalResponse.ok) {
+            console.log("[API] Successfully sent data to Google Sheets via redirect")
+          } else {
+            console.error("[API] Google Sheets redirect request failed:", finalResponse.status, finalResponseText)
           }
         } else {
-          throw new Error("Could not extract redirect URL from 302 response")
+          console.error("[API] Could not extract redirect URL from HTML response")
         }
-      } else if (!googleSheetsResponse.ok) {
-        console.error("[API] Google Sheets error:", googleSheetsResponse.status, googleSheetsResult)
-        throw new Error(`Google Sheets request failed: ${googleSheetsResponse.status}`)
+      } else {
+        const responseText = await sheetsResponse.text()
+        console.log("[API] Google Sheets response text:", responseText)
+
+        if (!sheetsResponse.ok) {
+          console.error("[API] Google Sheets error:", sheetsResponse.status, responseText)
+        } else {
+          console.log("[API] Successfully sent data to Google Sheets")
+        }
       }
-    } catch (googleSheetsError) {
-      console.error("[API] Google Sheets connection error:", googleSheetsError)
-      return Response.json(
-        { success: false, errors: { general: "Failed to connect to registration system" } },
-        { status: 500 },
-      )
+    } catch (sheetsError) {
+      console.error("[API] Google Sheets request failed:", sheetsError)
     }
 
     // Log registration for debugging
@@ -198,7 +215,7 @@ export async function POST(request: Request) {
       teamSize,
       members,
       problemTrack,
-      timestamp: new Date().toISOString(),
+      timestamp,
     })
 
     return Response.json({
